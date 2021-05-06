@@ -1,30 +1,59 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={ logo } className="App-logo" alt="logo" />
-        <p>
-          Edit
-          <code>
-            src/App.js
-          </code>
-          and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+let data = {};
+
+class App extends React.Component {
+  constructor() {
+    super();
+
+    this.state = {
+      loading: false,
+      img: '',
+    };
+
+    this.updateState = this.updateState.bind(this);
+  }
+
+  async componentDidMount() {
+    await this.updateFetch();
+    this.updateState();
+  }
+
+  async updateFetch() {
+    const getAPI = await fetch('https://dog.ceo/api/breeds/image/random');
+    const response = await getAPI.json();
+    data = response;
+  }
+
+  updateState() {
+    this.updateFetch();
+    const time = 3000;
+    this.setState({
+      loading: true,
+    }, () => {
+      setTimeout(() => {
+        this.setState({
+          loading: false,
+          img: data.message,
+        });
+      }, time);
+    });
+  }
+
+  render() {
+    const { loading, img } = this.state;
+    return (
+      <div className="main">
+        <div>
+          { loading ? <span>Loading...</span> : <img src={ img } alt="Cachorro" /> }
+        </div>
+        <div>
+          <button onClick={ this.updateState }>Next</button>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default App;

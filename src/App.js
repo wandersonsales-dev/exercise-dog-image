@@ -17,7 +17,8 @@ class App extends React.Component {
 
   async componentDidMount() {
     await this.updateFetch();
-    this.updateState();
+    await this.updateState();
+    alert(data.message.match(/[^/./$]{10,}[/]/g).toString().replace('/', ''));
   }
 
   async updateFetch() {
@@ -26,19 +27,31 @@ class App extends React.Component {
     data = response;
   }
 
-  updateState() {
-    this.updateFetch();
-    const time = 3000;
-    this.setState({
-      loading: true,
-    }, () => {
-      setTimeout(() => {
-        this.setState({
-          loading: false,
-          img: data.message,
-        });
-      }, time);
-    });
+  saveToStorage(img) {
+    localStorage.setItem('dog-image', img);
+  }
+
+  async updateState() {
+    await this.updateFetch();
+    if (!data.message.includes('terrier')) {
+      const time = 500;
+      this.setState(() => ({
+        loading: true,
+      }), () => {
+        setTimeout(() => {
+          this.setState({
+            loading: false,
+            img: data.message,
+          });
+          if (data.message) {
+            alert(data.message.match(/[^/./$]{9,}[/]/g).toString().replace('/', ''));
+          }
+        }, time);
+      });
+      this.saveToStorage(data.message);
+    } else {
+      console.log(`O message contém o valor ${data.message}`);
+    }
   }
 
   render() {
@@ -49,7 +62,7 @@ class App extends React.Component {
           { loading ? <span>Loading...</span> : <img src={ img } alt="Cachorro" /> }
         </div>
         <div>
-          <button onClick={ this.updateState }>Next</button>
+          <button type="submit" onClick={ this.updateState }>Next</button>
         </div>
       </div>
     );
